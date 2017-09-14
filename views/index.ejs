@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UnifyID | RGB Bitmap</title>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script>
+        var app = angular.module("landing_app", []);
+        app.controller("landing_controller", function($scope,$http,$window) {
+            $http({
+                method: "GET",
+                url: 'https://www.random.org/integers/?num=10000&min=0&max=10000&col=1&base=10&format=plain&rnd=new'
+            }).then(function (result) {
+
+                var canvas = document.createElement('canvas')
+                var context = canvas.getContext('2d');
+
+                var colorMatrix = new Uint8ClampedArray(128 * 128 * 4);
+                for(var y = 0; y < 128; y++) {
+                    for(var x = 0; x < 128; x++) {
+                        var pos = (y * 128 + x) * 4;
+                        colorMatrix[pos]   = result[y*x] % 255
+                        colorMatrix[pos+1] = (Math.floor(result[y*x] / 2)) % 255
+                        colorMatrix[pos+2] = (Math.floor(result[y*x] / 3)) % 255
+                        colorMatrix[pos+3] = (Math.floor(result[y*x] / 4)) % 255
+                    }
+                }
+
+                var imageData = context.createImageData(128,128);
+                imageData.data.set(colorMatrix);
+                context.putImageData(imageData, 100,100);
+
+                var dataUrl = canvas.toDataURL();
+                console.log("data is: ", dataUrl);
+                var image = document.getElementById('rectangle')
+                image.src = dataUrl
+
+            });
+        });
+    </script>
+</head>
+<body ng-app="landing_app" ng-controller="landing_controller">
+    <img id="rectangle"></img>
+</body>
+</html>
